@@ -2,6 +2,7 @@ import Navbar from './components/Navbar';
 import RiskForm from './components/RiskForm';
 import AfibDetector from './components/AfibDetector';
 import TiaAssessment from './components/TiaAssessment'; // <--- Import the new component
+const API_URL = import.meta.env.VITE_API_URL;
 
 function App() {
   return (

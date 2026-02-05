@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { predictStrokeRisk, StrokeInput } from '../services/riskService';
 import ResultCard from './ResultCard';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const RiskForm = () => {
   const [formData, setFormData] = useState<StrokeInput>({

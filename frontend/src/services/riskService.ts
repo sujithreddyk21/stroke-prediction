@@ -24,11 +24,11 @@ export interface StrokeResponse {
 // --- 2. AFib Detection Types ---
 
 export interface AFibResponse {
-    prediction: string; // e.g., "Normal Sinus Rhythm" or "Atrial Fibrillation Detected"
+    prediction: string;
     probability?: string;
 }
 
-// --- 3. TIA Assessment Types (NEW) ---
+// --- 3. TIA Assessment Types ---
 
 export interface TIAResponse {
     status: string;
@@ -39,39 +39,62 @@ export interface TIAResponse {
 
 // --- 4. Service Functions ---
 
-// Predict Stroke Risk
+// ✅ Predict Stroke Risk (FIXED + DEBUG LOGGING)
 export const predictStrokeRisk = async (data: StrokeInput): Promise<StrokeResponse> => {
     try {
-        const response = await api.post('/api/predict-stroke', data);
+        console.log("📤 Sending to Render:", data);  // <-- IMPORTANT DEBUG LOG
+
+        const response = await api.post('/api/predict-stroke', data, {
+            timeout: 15000, // 15 seconds
+        });
+
+        console.log("✅ Response from Render:", response.data);
         return response.data; 
-    } catch (error) {
-        console.error("Stroke API Error:", error);
+
+    } catch (error: any) {
+        console.error("❌ Stroke API Error:", error);
+
+        if (error.response) {
+            console.error("Backend status:", error.response.status);
+            console.error("Backend detail:", error.response.data);
+        }
+
         throw error;
     }
 };
 
-// Detect AFib
+// ✅ Detect AFib (No change needed, but cleaner)
 export const detectAfib = async (signalData: number[]): Promise<AFibResponse> => {
     try {
-        // We wrap the array in an object because the Backend expects { "signal": [...] }
+        console.log("📤 Sending AFib signal:", signalData);
+
         const response = await api.post('/api/detect-afib', { signal: signalData });
+
+        console.log("✅ AFib response:", response.data);
         return response.data;
     } catch (error) {
-        console.error("AFib API Error:", error);
+        console.error("❌ AFib API Error:", error);
         throw error;
     }
 };
 
-// Assess TIA Risk (NEW)
-export const assessTiaRisk = async (symptoms: string[], duration: number): Promise<TIAResponse> => {
+// ✅ Assess TIA Risk (No change needed, but cleaner)
+export const assessTiaRisk = async (
+    symptoms: string[], 
+    duration: number
+): Promise<TIAResponse> => {
     try {
+        console.log("📤 Sending TIA data:", { symptoms, symptom_duration_hours: duration });
+
         const response = await api.post('/api/assess-tia', { 
             symptoms: symptoms, 
             symptom_duration_hours: duration 
         });
+
+        console.log("✅ TIA response:", response.data);
         return response.data;
     } catch (error) {
-        console.error("TIA API Error:", error);
+        console.error("❌ TIA API Error:", error);
         throw error;
     }
 };

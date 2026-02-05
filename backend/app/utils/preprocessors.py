@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 import torch
 
+# =========================
+# 1) STROKE PREPROCESSING
+# =========================
+
 def process_stroke_input(data):
     """
     Robust version that works reliably on Render + Vercel + Local
@@ -76,3 +80,34 @@ def process_stroke_input(data):
     ]
 
     return df[expected_order]
+
+
+# =========================
+# 2) AFIB PREPROCESSING  ✅ (THIS WAS MISSING)
+# =========================
+
+def process_afib_signal(signal_list):
+    """
+    Prepares the raw ECG signal for the LSTM model.
+    """
+
+    # Convert to numpy
+    signal = np.array(signal_list, dtype=np.float32)
+    signal = np.nan_to_num(signal)
+
+    # Normalize
+    mean = np.mean(signal)
+    std = np.std(signal)
+    if std < 1e-7:
+        std = 1e-7
+    signal = (signal - mean) / std
+
+    # Pad or truncate to 1000
+    target_len = 1000
+    if len(signal) < target_len:
+        signal = np.pad(signal, (0, target_len - len(signal)))
+    else:
+        signal = signal[:target_len]
+
+    # Convert to tensor shape (1, 1000, 1)
+    return torch.tensor(signal, dtype=torch.float32).view(1, target_len, 1)

@@ -22,11 +22,14 @@ origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # allow all (we can tighten later)
+    allow_origins=[
+        "https://stroke-prediction-kjm9z5je-sujith-reddys-projects-afc7b754.vercel.app"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],      # allow GET, POST, OPTIONS, etc.
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Load models on startup
 @app.on_event("startup")

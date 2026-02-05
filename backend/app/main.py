@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
 import os
 import torch
+import traceback
 
 from app.utils.model_loader import ModelLoader
 from app.utils.preprocessors import process_stroke_input, process_afib_signal
@@ -16,13 +17,12 @@ load_dotenv()
 app = FastAPI(title="Stroke Risk AI System")
 
 # ======================
-# ✅ FIXED CORS (MOST IMPORTANT PART)
+# ✅ CORS (WORKING FOR LOCAL + VERCEL + RENDER)
 # ======================
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,   # MUST be False with Render + Vercel
+    allow_origins=["*"],  # allow all (simplest working option)
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -37,25 +37,8 @@ def read_root():
     return {"status": "active", "version": "1.0.0"}
 
 # ======================
-# ✅ PROPER OPTIONS HANDLER (preflight fix)
+# 🔹 ENDPOINT 1 — Stroke Prediction (FIXED)
 # ======================
-
-@app.options("/api/predict-stroke")
-def options_predict_stroke():
-    return {}
-
-@app.options("/api/detect-afib")
-def options_detect_afib():
-    return {}
-
-@app.options("/api/assess-tia")
-def options_assess_tia():
-    return {}
-
-# ======================
-# 🔹 ENDPOINT 1 — Stroke Prediction (FIXED ERROR HANDLING)
-# ======================
-
 @app.post("/api/predict-stroke")
 def predict_stroke(data: StrokePredictionInput):
     model = ModelLoader.get_xgb_model()
@@ -73,13 +56,13 @@ def predict_stroke(data: StrokePredictionInput):
         }
 
     except Exception as e:
-        print("🔥 FULL Prediction Error:", str(e))
+        print("🔥 FULL Prediction Error:")
+        traceback.print_exc()   # <-- SHOW REAL ERROR IN RENDER LOGS
         raise HTTPException(status_code=400, detail=str(e))
 
 # ======================
-# 🔹 ENDPOINT 2 — AFib Detection (UNCHANGED)
+# 🔹 ENDPOINT 2 — AFib Detection
 # ======================
-
 @app.post("/api/detect-afib")
 def detect_afib(data: AFibPredictionInput):
     model = ModelLoader.get_afib_model()
@@ -102,13 +85,13 @@ def detect_afib(data: AFibPredictionInput):
         }
 
     except Exception as e:
-        print("🔥 AFib Error:", str(e))
+        print("🔥 AFib Error:")
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail="Error processing signal")
 
 # ======================
 # 🔹 ENDPOINT 3 — TIA Assessment
 # ======================
-
 class TIACheckInput(BaseModel):
     symptoms: List[str]
     symptom_duration_hours: float
@@ -125,9 +108,8 @@ def assess_tia(data: TIACheckInput):
     ]
 
     detected_risk_factors = [s for s in data.symptoms if s in high_risk_symptoms]
-    is_critical = len(detected_risk_factors) > 0
 
-    if is_critical:
+    if len(detected_risk_factors) > 0:
         status = "High Risk (Possible TIA/Stroke)"
         alert = "CRITICAL"
         recommendation = "IMMEDIATE ACTION REQUIRED: Call Emergency Services."

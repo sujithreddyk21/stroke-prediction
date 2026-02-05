@@ -3,7 +3,7 @@ import axios from "axios";
 // 1. Get the Backend URL from .env or use default
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  "https://stroke-prediction-1-orxd.onrender.com";
+  "https://stroke-prediction-15sl.onrender.com/";
 
 // 2. Create the Axios Instance (RECOMMENDED SETTINGS FOR RENDER)
 const api = axios.create({

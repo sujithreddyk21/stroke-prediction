@@ -17,10 +17,11 @@ app = FastAPI(title="Stroke Risk AI System")
 
 # CORS Configuration
 origins = [
-    "https://stroke-prediction-wheat.vercel.app",  # <-- YOUR VERCEL URL
+    "https://stroke-prediction-cbs2wnur-sujith-reddys-projects-afc7b754.vercel.app",
     "http://localhost:5173",
     "http://localhost:3000"
 ]
+
 
 
 app.add_middleware(

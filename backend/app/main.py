@@ -47,7 +47,9 @@ def predict_stroke(data: StrokePredictionInput):
 
     try:
         input_df = process_stroke_input(data)
-        probability = model.predict_proba(input_df)[:, 1][0]
+        import xgboost as xgb
+        dmat = xgb.DMatrix(input_df, feature_names=input_df.columns.tolist())
+        probability = model.best_estimator_.get_booster().predict(dmat)[0]
 
         return {
             "risk_score": float(probability),

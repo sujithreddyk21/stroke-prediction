@@ -16,19 +16,15 @@ load_dotenv()
 app = FastAPI(title="Stroke Risk AI System")
 
 # CORS Configuration
-origins = [
-    "https://stroke-prediction-cbs2wnur-sujith-reddys-projects-afc7b754.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000"
-]
+origins = ["*"]
 
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],      # allow all (we can tighten later)
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"],      # allow GET, POST, OPTIONS, etc.
     allow_headers=["*"],
 )
 
@@ -40,6 +36,9 @@ def startup_event():
 @app.get("/")
 def read_root():
     return {"status": "active", "version": "1.0.0"}
+@app.options("/api/predict-stroke")
+def options_predict_stroke():
+    return {}
 
 # --- Endpoint 1: Stroke Risk ---
 @app.post("/api/predict-stroke")
@@ -64,6 +63,9 @@ def predict_stroke(data: StrokePredictionInput):
     except Exception as e:
         print(f"Prediction Error: {e}")
         raise HTTPException(status_code=400, detail="Error processing data")
+@app.options("/api/detect-afib")
+def options_detect_afib():
+    return {}
 
 # --- Endpoint 2: AFib Detection ---
 @app.post("/api/detect-afib")
@@ -104,6 +106,9 @@ def detect_afib(data: AFibPredictionInput):
 class TIACheckInput(BaseModel):
     symptoms: List[str]  # e.g., ["face_drooping", "speech_difficulty"]
     symptom_duration_hours: float
+@app.options("/api/assess-tia")
+def options_assess_tia():
+    return {}
 
 @app.post("/api/assess-tia")
 def assess_tia(data: TIACheckInput):

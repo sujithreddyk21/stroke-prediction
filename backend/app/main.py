@@ -21,10 +21,7 @@ app = FastAPI(title="Stroke Risk AI System")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://stroke-prediction-kjm9z5je-sujith-reddys-projects-afc7b754.vercel.app",
-        "https://stroke-prediction-wheat.vercel.app",  # <-- add this too
-    ],
+    allow_origins=["*"],
     allow_credentials=False,   # MUST be False with Render + Vercel
     allow_methods=["*"],
     allow_headers=["*"],

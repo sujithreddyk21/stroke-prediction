@@ -27,11 +27,16 @@ app.add_middleware(
         "https://stroke-prediction-oe0j2uz3m-sujith-reddys-projects-afc7b754.vercel.app/",  # your Vercel frontend
         "https://stroke-prediction-git-main-sujith-reddys-projects-afc7b754.vercel.app/",
         "https://stroke-prediction-wheat.vercel.app/"
+        "https://stroke-prediction-wheat.vercel.app",  # your Vercel frontend
+        "https://stroke-prediction-kjm9z5je-sujith-reddys-projects-afc7b754.vercel.app"
     ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.options("/api/predict-stroke")
+def options_predict_stroke():
+    return {}
 
 # Load models on startup
 @app.on_event("startup")

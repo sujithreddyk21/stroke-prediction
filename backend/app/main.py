@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import torch
 import traceback
+import xgboost as xgb
 
 from app.utils.model_loader import ModelLoader
 from app.utils.preprocessors import process_stroke_input, process_afib_signal
@@ -17,11 +18,11 @@ load_dotenv()
 app = FastAPI(title="Stroke Risk AI System")
 
 # ======================
-# ✅ CORS (WORKING FOR LOCAL + VERCEL + RENDER)
+# ✅ CORS (WORKS FOR LOCAL + VERCEL + RENDER)
 # ======================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all (simplest working option)
+    allow_origins=["*"],  # allow all origins (simplest working config)
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +38,7 @@ def read_root():
     return {"status": "active", "version": "1.0.0"}
 
 # ======================
-# 🔹 ENDPOINT 1 — Stroke Prediction (FIXED)
+# 🔹 ENDPOINT 1 — Stroke Prediction (FULLY FIXED)
 # ======================
 @app.post("/api/predict-stroke")
 def predict_stroke(data: StrokePredictionInput):
@@ -46,9 +47,16 @@ def predict_stroke(data: StrokePredictionInput):
         raise HTTPException(status_code=500, detail="Model not loaded")
 
     try:
+        # Preprocess input into DataFrame
         input_df = process_stroke_input(data)
-        import xgboost as xgb
-        dmat = xgb.DMatrix(input_df, feature_names=input_df.columns.tolist())
+
+        # ✅ CRITICAL FIX: Force feature names using DMatrix
+        dmat = xgb.DMatrix(
+            input_df,
+            feature_names=input_df.columns.tolist()
+        )
+
+        # Use booster directly (avoids sklearn/GridSearch feature-name bug)
         probability = model.best_estimator_.get_booster().predict(dmat)[0]
 
         return {
@@ -59,7 +67,7 @@ def predict_stroke(data: StrokePredictionInput):
 
     except Exception as e:
         print("🔥 FULL Prediction Error:")
-        traceback.print_exc()   # <-- SHOW REAL ERROR IN RENDER LOGS
+        traceback.print_exc()  # shows real error in Render logs
         raise HTTPException(status_code=400, detail=str(e))
 
 # ======================
@@ -78,7 +86,11 @@ def detect_afib(data: AFibPredictionInput):
             output = model(input_tensor)
             prob = torch.sigmoid(output).item()
 
-        label = "Atrial Fibrillation Detected" if prob > 0.5 else "Normal Sinus Rhythm"
+        label = (
+            "Atrial Fibrillation Detected"
+            if prob > 0.5
+            else "Normal Sinus Rhythm"
+        )
 
         return {
             "prediction": label,
@@ -109,7 +121,9 @@ def assess_tia(data: TIACheckInput):
         "numbness"
     ]
 
-    detected_risk_factors = [s for s in data.symptoms if s in high_risk_symptoms]
+    detected_risk_factors = [
+        s for s in data.symptoms if s in high_risk_symptoms
+    ]
 
     if len(detected_risk_factors) > 0:
         status = "High Risk (Possible TIA/Stroke)"

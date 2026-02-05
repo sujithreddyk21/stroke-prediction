@@ -1,3 +1,7 @@
+import pandas as pd
+import numpy as np
+import torch
+
 def process_stroke_input(data):
     """
     Robust version that works reliably on Render + Vercel + Local

@@ -1,9 +1,11 @@
 fastapi
 uvicorn
-pandas
+pydantic
 numpy
+pandas
 scikit-learn
 xgboost
 torch
-pydantic-settings
+joblib
+python-multipart
 python-dotenv

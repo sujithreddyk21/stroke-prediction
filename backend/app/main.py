@@ -17,9 +17,11 @@ app = FastAPI(title="Stroke Risk AI System")
 
 # CORS Configuration
 origins = [
-    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    "https://stroke-prediction-wheat.vercel.app",  # <-- YOUR VERCEL URL
+    "http://localhost:5173",
     "http://localhost:3000"
 ]
+
 
 app.add_middleware(
     CORSMiddleware,

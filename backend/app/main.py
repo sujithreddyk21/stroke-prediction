@@ -22,7 +22,12 @@ app = FastAPI(title="Stroke Risk AI System")
 # ======================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins (simplest working config)
+    allow_origins=[
+        "http://localhost:5173",  # your local Vite frontend
+        "https://stroke-prediction-oe0j2uz3m-sujith-reddys-projects-afc7b754.vercel.app/",  # your Vercel frontend
+        "https://stroke-prediction-git-main-sujith-reddys-projects-afc7b754.vercel.app/",
+        "https://stroke-prediction-wheat.vercel.app/"
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

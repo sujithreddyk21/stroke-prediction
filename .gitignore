@@ -1,0 +1,35 @@
+# ---------- PYTHON / BACKEND ----------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+.venv/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# VS Code settings
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# ---------- FRONTEND (Node + Vite + React) ----------
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# ---------- OS FILES ----------
+.DS_Store
+Thumbs.db

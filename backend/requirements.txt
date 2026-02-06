@@ -9,3 +9,4 @@ torch
 joblib
 python-multipart
 python-dotenv
+gunicorn
